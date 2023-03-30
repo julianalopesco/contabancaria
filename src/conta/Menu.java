@@ -18,9 +18,9 @@ public class Menu {
 
 		Scanner leia = new Scanner(System.in);
 
-		int opcao, numero, agencia, tipo, aniversario;
+		int opcao, numero, agencia, tipo, aniversario,numeroDestino;
 		String titular;
-		float saldo=0, limite=0;
+		float saldo=0, limite=0,valor=0;
 		
 		System.out.println("\nCriar contas\n");
 		ContaCorrente cc1 = new ContaCorrente(contas.gerarNumero(),123, 1, "João da Silva", 1000.0f, 1000.0f);
@@ -36,7 +36,7 @@ public class Menu {
 		
 		while (true) {
 			System.out.println(Cores.TEXT_BLUE_BOLD + Cores.ANSI_YELLOW_BACKGROUND_BRIGHT);
-			System.out.println("*****************************************************");
+			System.out.println(Cores.TEXT_BLUE_BOLD+"*****************************************************");
 			System.out.println("                                                     ");
 			System.out.println("                BANCO PAULISTANO                     ");
 			System.out.println("                                                     ");
@@ -111,26 +111,106 @@ public class Menu {
 				break;
 			case 3:
 				System.out.println(Cores.TEXT_BLUE_BOLD + "Consultar dados da Conta - por número\n\n");
+				
+				System.out.println("Digite o número da conta: ");
+				numero = leia.nextInt();
+				
+				contas.procurarPorNumero(numero);
+				
 				keyPress();
 				break;
 			case 4:
 				System.out.println(Cores.TEXT_BLUE_BOLD + "Atualizar dados da Conta\n\n");
+				
+				System.out.println("Digite o número da conta: ");
+				numero = leia.nextInt();
+				
+				if (contas.buscarNaCollection(numero) != null) {
+					
+					System.out.println("Digite o Numero da Agência: ");
+					agencia = leia.nextInt();
+					System.out.println("Digite o Nome do Titular: ");
+					leia.skip("\\R?");
+					titular = leia.nextLine(); 
+					
+					System.out.println("Digite o Saldo da Conta (R$): ");
+					saldo = leia.nextFloat();
+					
+					tipo = contas.retornaTipo(numero);
+					
+					switch (tipo) {
+					case 1 -> {
+						System.out.println("Digite o Limite de Crédito (R$): ");
+						limite = leia.nextFloat();
+						contas.atualizar(new ContaCorrente(numero, agencia, tipo, titular, saldo, limite));
+					}
+					case 2 -> {
+						System.out.println("Digite o dia do Aniversário da conta: ");
+						aniversario = leia.nextInt();
+						contas.atualizar(new ContaPoupanca(numero, agencia, tipo, titular, saldo, aniversario));
+					}
+					default -> {
+						System.out.println("Tipo de conta inválido!");
+					}
+					}
+					
+				} else
+					System.out.println("\nConta não encontrada!");
 				keyPress();
 				break;
 			case 5:
 				System.out.println(Cores.TEXT_BLUE_BOLD + "Apagar a Conta\n\n");
+				
+				System.out.println("Digite o número da conta: ");
+				numero = leia.nextInt();
+				
+				contas.deletar(numero);
+				
 				keyPress();
 				break;
 			case 6:
 				System.out.println(Cores.TEXT_BLUE_BOLD + "Saque\n\n");
+				
+				System.out.println("Digite o número da conta: ");
+				numero = leia.nextInt();
+				do {
+					System.out.println("Digite o valor do saque (R$): ");
+					valor = leia.nextFloat();
+				}while(valor <= 0);
+				
+				contas.sacar(numero, valor);
+				
 				keyPress();
 				break;
 			case 7:
 				System.out.println(Cores.TEXT_BLUE_BOLD + "Depósito\n\n");
+				
+				System.out.println("Digire o numero da conta: ");
+				numero = leia.nextInt();
+				
+				do {
+					System.out.println("Digite o valor do depósito (R$): ");
+					valor = leia.nextFloat();
+				}while(valor <= 0 );
+				
+				contas.depositar(numero, valor);
+				
 				keyPress();
 				break;
 			case 8:
 				System.out.println(Cores.TEXT_BLUE_BOLD + "Transferência entre Contas\n\n");
+				
+				System.out.println("Digite o numero da conta de origem: ");
+				numero = leia.nextInt();
+				System.out.println("Digite o numero da conta de destino: ");
+				numeroDestino = leia.nextInt();
+				do {
+					System.out.println("Digite o valor da transferência (R$): ");
+					valor = leia.nextFloat();
+				}while(valor <= 0 );
+				
+				contas.transferir(numero, numeroDestino, valor);
+				
 				keyPress();
 				break;
 			default:
@@ -143,7 +223,7 @@ public class Menu {
 
 	public static void keyPress() {
 		try {
-			System.out.println(Cores.TEXT_RESET + "\n\nPressione Enter para Continaur...");
+			System.out.println(Cores.TEXT_RESET + "\n\nPressione Enter para Continuar...");
 			System.in.read();
 		} catch (IOException e) {
 			System.out.println("Você pressionou uma tecla diferente de enter!");
